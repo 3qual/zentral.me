@@ -1,0 +1,9 @@
+app:
+  name: zentral-go
+  env: ${GO_ENV}
+database:
+  host: mongodb
+  port: 27017
+  user: ${DB_USER}
+  pass: ${DB_PASS}
+  
