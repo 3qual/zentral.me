@@ -1,9 +1,0 @@
-app:
-  name: zentral-back-go
-  env: ${GO_ENV}
-database:
-  host: postgres
-  port: 5432
-  user: ${POSTGRESDB_USER}
-  pass: ${POSTGRESDB_PASSWORD}
-  
