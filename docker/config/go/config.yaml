@@ -1,9 +1,9 @@
 app:
-  name: zentral-go
+  name: zentral-back-go
   env: ${GO_ENV}
 database:
-  host: mongodb
-  port: 27017
-  user: ${DB_USER}
-  pass: ${DB_PASS}
+  host: postgres
+  port: 5432
+  user: ${POSTGRESDB_USER}
+  pass: ${POSTGRESDB_PASSWORD}
   

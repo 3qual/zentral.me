@@ -15,8 +15,6 @@ services:
       - ${GO_CONFIG}:/config
       - ${GO_DATA}:/data
       - ${GO_LOGS}:/logs
-    depends_on:
-      - mongodb
     ports:
       - "${GO_APP_HOST_PORT}:8080"
 
@@ -56,8 +54,8 @@ services:
       dockerfile: Dockerfile
     container_name: mongodb
     environment:
-      - MONGO_INITDB_ROOT_USERNAME=${MONGO_INITDB_ROOT_USERNAME}
-      - MONGO_INITDB_ROOT_PASSWORD=${MONGO_INITDB_ROOT_PASSWORD}
+      - MONGO_INITDB_ROOT_USERNAME=${MONGODB_USER}
+      - MONGO_INITDB_ROOT_PASSWORD=${MONGODB_PASSWORD}
     volumes:
       - ${MONGODB_DATA}:/data/db
       - ${MONGODB_LOGS}:/logs
