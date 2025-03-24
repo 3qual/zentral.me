@@ -1,67 +1,35 @@
 services:
+  postgres:
+    build:  
+      context: ./context/postgres
+      dockerfile: Dockerfile
+    container_name: postgres
+    environment:
+      POSTGRES_PORT: ${POSTGRES_INTERNAL_PORT}
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - ${POSTGRES_HOST_LOGS}:/var/log/postgresql
+      - ${POSTGRES_HOST_DATA}:/var/lib/postgresql/data
+    ports:
+      - "${POSTGRES_EXTERNAL_PORT}:${POSTGRES_INTERNAL_PORT}"
+    restart: always
+
   go:
     build:
       context: ./context/go
       dockerfile: Dockerfile
     container_name: go
-    environment:
-      - GO_ENV=${GO_ENV}
-      - DB_HOST=${MONGO_HOST}
-      - DB_PORT=${MONGO_HOST_PORT}
-      - DB_USER=${MONGO_INITDB_ROOT_USERNAME}
-      - DB_PASS=${MONGO_INITDB_ROOT_PASSWORD}
     volumes:
-      - ${GO_SRC}:/app
-      - ${GO_CONFIG}:/config
-      - ${GO_DATA}:/data
-      - ${GO_LOGS}:/logs
+      - ${GO_HOST_SRC}:/app
+      - ${GO_HOST_DATA}:/data
+      - ${GO_HOST_LOGS}:/logs
     ports:
-      - "${GO_APP_HOST_PORT}:8080"
-
-  java:
-    build:
-      context: ./context/java
-      dockerfile: Dockerfile
-    container_name: java
-    environment:
-      - JAVA_ENV=${JAVA_ENV}
-    volumes:
-      - ${JAVA_SRC}/target:/app
-      - ${JAVA_CONFIG}:/config
-      - ${JAVA_DATA}:/data
-      - ${JAVA_LOGS}:/logs
-    ports:
-      - "${JAVA_APP_HOST_PORT}:8081"
-
-  python:
-    build:
-      context: ./context/python
-      dockerfile: Dockerfile
-    container_name: python
-    environment:
-      - PY_ENV=${PY_ENV}
-    volumes:
-      - ${PYTHON_SRC}:/app
-      - ${PYTHON_CONFIG}:/config
-      - ${PYTHON_DATA}:/data
-      - ${PYTHON_LOGS}:/logs
-    ports:
-      - "${PY_APP_HOST_PORT}:8082"
-
-  mongodb:
-    build:
-      context: ./context/mongodb
-      dockerfile: Dockerfile
-    container_name: mongodb
-    environment:
-      - MONGO_INITDB_ROOT_USERNAME=${MONGODB_USER}
-      - MONGO_INITDB_ROOT_PASSWORD=${MONGODB_PASSWORD}
-    volumes:
-      - ${MONGODB_DATA}:/data/db
-      - ${MONGODB_LOGS}:/logs
-      - ${MONGODB_CONFIG}/mongod.conf:/etc/mongod.conf
-    ports:
-      - "${MONGO_HOST_PORT}:27017"
+      - "${GO_APP_EXTERNAL_PORT}:${GO_APP_INTERNAL_PORT}"
+    depends_on:
+      - postgres
+      
 
   uptimekuma:
     build:
@@ -69,8 +37,7 @@ services:
       dockerfile: Dockerfile
     container_name: uptimekuma
     volumes:
-      - ${UPTIME_KUMA_DATA}:/data
-      - ${UPTIME_KUMA_LOGS}:/logs
-      - ${UPTIME_KUMA_CONFIG}:/config
+      # - ${UPTIME_KUMA_HOST_DATA}:/app
+      - ${UPTIME_KUMA_HOST_LOGS}:/logs
     ports:
-      - "${UPTIME_KUMA_HOST_PORT}:3001"
+      - "${UPTIME_KUMA_EXTERNAL_PORT}:${UPTIME_KUMA_INTERNAL_PORT}"

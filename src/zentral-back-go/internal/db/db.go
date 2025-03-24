@@ -19,28 +19,15 @@ var (
 // ConnectDB инициализирует соединение с БД (ленивая инициализация).
 func ConnectDB() *gorm.DB {
 	once.Do(func() {
-		connectionString := os.Getenv("DATABASE_URL")
+		connectionString := os.Getenv("POSTGRES_DATABASEURL")
 		if connectionString == "" {
-			log.Fatal("DATABASE_URL is not set")
-		}
-
-		// Настройка уровня логирования
-		var logLevel logger.LogLevel
-		switch os.Getenv("DB_LOG_LEVEL") {
-		case "silent":
-			logLevel = logger.Silent
-		case "error":
-			logLevel = logger.Error
-		case "warn":
-			logLevel = logger.Warn
-		default:
-			logLevel = logger.Info
+			log.Fatal("POSTGRES_DATABASEURL is not set")
 		}
 
 		// Подключение к базе данных
 		var err error
 		database, err = gorm.Open(postgres.Open(connectionString), &gorm.Config{
-			Logger: logger.Default.LogMode(logLevel),
+			Logger: logger.Default.LogMode(logger.Warn), // Фиксированный уровень логирования
 		})
 		if err != nil {
 			log.Fatalf("Failed to connect to the database: %v", err)
