@@ -13,7 +13,7 @@ import (
 	"github.com/joho/godotenv"
 	"gorm.io/gorm"
 
-	"github.com/3qual/zentral-back-go/internal/db"
+	"github.com/3qual/zentral-back-go/common/db"
 )
 
 func main() {

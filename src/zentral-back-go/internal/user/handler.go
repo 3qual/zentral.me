@@ -81,16 +81,3 @@ func (h *UserHandler) DeleteUserHandler(w http.ResponseWriter, r *http.Request) 
 
 	w.WriteHeader(http.StatusOK)
 }
-
-// UserRouter настраивает маршруты для пользователя
-func UserRouter(handler *UserHandler) chi.Router {
-	r := chi.NewRouter()
-
-	// Пример маршрутов
-	r.Post("/", handler.CreateUserHandler)       // Создание пользователя
-	r.Get("/{id}", handler.GetUserByIDHandler)   // Получение пользователя по ID
-	r.Put("/", handler.UpdateUserHandler)        // Обновление пользователя
-	r.Delete("/{id}", handler.DeleteUserHandler) // Удаление пользователя
-
-	return r
-}

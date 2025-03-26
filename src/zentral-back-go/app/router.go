@@ -5,8 +5,8 @@ import (
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/cors"
 
+	"github.com/3qual/zentral-back-go/common/auth"
 	"github.com/3qual/zentral-back-go/internal/accesstoken"
-	"github.com/3qual/zentral-back-go/internal/auth"
 	"github.com/3qual/zentral-back-go/internal/collaborator"
 	"github.com/3qual/zentral-back-go/internal/folder"
 	"github.com/3qual/zentral-back-go/internal/foldertransaction"

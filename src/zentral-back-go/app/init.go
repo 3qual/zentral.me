@@ -5,10 +5,11 @@ import (
 
 	"github.com/joho/godotenv"
 
+	"github.com/3qual/zentral-back-go/common/auth"
+	"github.com/3qual/zentral-back-go/common/db"
+	"github.com/3qual/zentral-back-go/common/migrations"
 	"github.com/3qual/zentral-back-go/internal/accesstoken"
-	"github.com/3qual/zentral-back-go/internal/auth"
 	"github.com/3qual/zentral-back-go/internal/collaborator"
-	"github.com/3qual/zentral-back-go/internal/db"
 	"github.com/3qual/zentral-back-go/internal/folder"
 	"github.com/3qual/zentral-back-go/internal/foldertransaction"
 	"github.com/3qual/zentral-back-go/internal/image"
@@ -39,6 +40,9 @@ func InitializeApp() (
 	// Подключение к базе данных
 	database := db.ConnectDB()
 
+	// Миграция
+	migrations.Migrate(database)
+
 	// Инициализация репозиториев
 	userRepo := user.NewUserRepository(database)
 	transactionRepo := transaction.NewTransactionRepository(database)
@@ -49,6 +53,7 @@ func InitializeApp() (
 	refreshTokenRepo := refreshtoken.NewRefreshTokenRepository(database)
 	imageRepo := image.NewImageRepository(database)
 	sessionRepo := session.NewSessionRepository(database)
+	authRepo := auth.NewAuthRepository(database)
 
 	// Инициализация сервисов
 	userService := user.NewUserService(userRepo)
@@ -60,6 +65,7 @@ func InitializeApp() (
 	refreshTokenService := refreshtoken.NewRefreshTokenService(refreshTokenRepo)
 	imageService := image.NewImageService(imageRepo)
 	sessionService := session.NewSessionService(sessionRepo)
+	authService := auth.NewAuthService(authRepo)
 
 	// Инициализация обработчиков
 	userHandler := user.NewUserHandler(userService)
@@ -69,7 +75,7 @@ func InitializeApp() (
 	collaboratorHandler := collaborator.NewCollaboratorHandler(collaboratorService)
 	accessTokenHandler := accesstoken.NewAccessTokenHandler(accessTokenService)
 	refreshTokenHandler := refreshtoken.NewRefreshTokenHandler(refreshTokenService)
-	authHandler := auth.NewAuthHandler(accessTokenService, refreshTokenService)
+	authHandler := auth.NewAuthHandler(authService)
 	imageHandler := image.NewImageHandler(imageService)
 	sessionHandler := session.NewSessionHandler(sessionService)
 
