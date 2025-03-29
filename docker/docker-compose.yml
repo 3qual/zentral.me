@@ -1,0 +1,43 @@
+services:
+  postgres:
+    build:  
+      context: ./context/postgres
+      dockerfile: Dockerfile
+    container_name: postgres
+    environment:
+      POSTGRES_PORT: ${POSTGRES_INTERNAL_PORT}
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - ${POSTGRES_HOST_LOGS}:/var/log/postgresql
+      - ${POSTGRES_HOST_DATA}:/var/lib/postgresql/data
+    ports:
+      - "${POSTGRES_EXTERNAL_PORT}:${POSTGRES_INTERNAL_PORT}"
+    restart: always
+
+  go:
+    build:
+      context: ./context/go
+      dockerfile: Dockerfile
+    container_name: go
+    volumes:
+      - ${GO_HOST_SRC}:/app
+      - ${GO_HOST_DATA}:/data
+      - ${GO_HOST_LOGS}:/logs
+    ports:
+      - "${GO_APP_EXTERNAL_PORT}:${GO_APP_INTERNAL_PORT}"
+    depends_on:
+      - postgres
+      
+
+  uptimekuma:
+    build:
+      context: ./context/uptimekuma
+      dockerfile: Dockerfile
+    container_name: uptimekuma
+    volumes:
+      # - ${UPTIME_KUMA_HOST_DATA}:/app
+      - ${UPTIME_KUMA_HOST_LOGS}:/logs
+    ports:
+      - "${UPTIME_KUMA_EXTERNAL_PORT}:${UPTIME_KUMA_INTERNAL_PORT}"
