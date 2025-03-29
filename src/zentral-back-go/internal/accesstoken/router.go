@@ -10,5 +10,10 @@ import (
 func AccessTokenRouter(handler *AccessTokenHandler) chi.Router {
 	r := chi.NewRouter()
 
+	r.Post("/", handler.CreateAccessTokenHandler)
+	r.Get("/{id}", handler.GetAccessTokenByIDHandler)
+	r.Put("/", handler.UpdateAccessTokenHandler)
+	r.Delete("/{id}", handler.DeleteAccessTokenHandler)
+
 	return r
 }

@@ -10,5 +10,10 @@ import (
 func CollaboratorRouter(handler *CollaboratorHandler) chi.Router {
 	r := chi.NewRouter()
 
+	r.Post("/", handler.CreateCollaboratorHandler)
+	r.Get("/{id}", handler.GetCollaboratorByIDHandler)
+	r.Put("/", handler.UpdateCollaboratorHandler)
+	r.Delete("/{id}", handler.DeleteCollaboratorHandler)
+
 	return r
 }

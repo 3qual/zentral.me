@@ -10,5 +10,9 @@ import (
 func FolderTransactionRouter(handler *FolderTransactionHandler) chi.Router {
 	r := chi.NewRouter()
 
+	r.Post("/", handler.CreateFolderTransactionHandler)
+	r.Get("/{id}", handler.GetFolderTransactionByIDHandler)
+	r.Delete("/{id}", handler.DeleteFolderTransactionHandler)
+
 	return r
 }
