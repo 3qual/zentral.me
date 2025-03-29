@@ -3,8 +3,7 @@ package app
 import (
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
-
-	// "github.com/go-chi/cors"
+	"github.com/go-chi/cors"
 
 	"github.com/3qual/zentral-back-go/common/auth"
 	"github.com/3qual/zentral-back-go/internal/accesstoken"
@@ -37,17 +36,19 @@ func NewRouter(
 	r.Use(middleware.Recoverer) // Восстановление от паники
 	r.Use(middleware.Logger)    // Логирование запросов
 
-	// // CORS настройка
-	// corsOptions := cors.Options{
-	// 	AllowedOrigins:   []string{"http://localhost", "http://localhost:3000"},
-	// 	AllowedMethods:   []string{"GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"},
-	// 	AllowedHeaders:   []string{"Accept", "Authorization", "Content-Type", "X-CSRF-Token"},
-	// 	ExposedHeaders:   []string{"Link"},
-	// 	AllowCredentials: true,
-	// 	MaxAge:           300,
-	// 	Debug:            true,
-	// }
-	// r.Use(cors.Handler(corsOptions))
+	// CORS настройка
+	corsOptions := cors.Options{
+		AllowedOrigins: []string{"*"}, // Разрешаем все источники
+		// AllowedMethods:   []string{"GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"},        // Все методы
+		AllowedMethods: []string{"*"}, // Все методы
+		// AllowedHeaders:   []string{"Accept", "Authorization", "Content-Type", "X-CSRF-Token"}, // Все заголовки
+		AllowedHeaders:   []string{"*"},    // Все заголовки
+		ExposedHeaders:   []string{"Link"}, // Разрешаем заголовок Link
+		AllowCredentials: true,             // Разрешаем cookies
+		MaxAge:           300,              // Макс. время хранения CORS в кэше
+		Debug:            true,             // Логирование CORS запросов
+	}
+	r.Use(cors.Handler(corsOptions))
 
 	// Настройка маршрутов API
 	r.Route("/api", func(r chi.Router) {
