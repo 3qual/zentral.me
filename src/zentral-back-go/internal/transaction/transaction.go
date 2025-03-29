@@ -9,6 +9,7 @@ import (
 // Transaction модель для транзакции
 type Transaction struct {
 	ID                  uuid.UUID `gorm:"primary_key;type:uuid;default:uuid_generate_v4()" json:"id"`
+	UserID              uuid.UUID `json:"user_id"`
 	Type                string    `json:"type"`
 	Name                string    `json:"name"`
 	Date                time.Time `json:"date"`

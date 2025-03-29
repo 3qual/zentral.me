@@ -3,7 +3,8 @@ package app
 import (
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
-	"github.com/go-chi/cors"
+
+	// "github.com/go-chi/cors"
 
 	"github.com/3qual/zentral-back-go/common/auth"
 	"github.com/3qual/zentral-back-go/internal/accesstoken"
@@ -36,21 +37,21 @@ func NewRouter(
 	r.Use(middleware.Recoverer) // Восстановление от паники
 	r.Use(middleware.Logger)    // Логирование запросов
 
-	// CORS настройка
-	corsOptions := cors.Options{
-		AllowedOrigins:   []string{"http://localhost", "http://localhost:3000"},
-		AllowedMethods:   []string{"GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"},
-		AllowedHeaders:   []string{"Accept", "Authorization", "Content-Type", "X-CSRF-Token"},
-		ExposedHeaders:   []string{"Link"},
-		AllowCredentials: true,
-		MaxAge:           300,
-		Debug:            true,
-	}
-	r.Use(cors.Handler(corsOptions))
+	// // CORS настройка
+	// corsOptions := cors.Options{
+	// 	AllowedOrigins:   []string{"http://localhost", "http://localhost:3000"},
+	// 	AllowedMethods:   []string{"GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"},
+	// 	AllowedHeaders:   []string{"Accept", "Authorization", "Content-Type", "X-CSRF-Token"},
+	// 	ExposedHeaders:   []string{"Link"},
+	// 	AllowCredentials: true,
+	// 	MaxAge:           300,
+	// 	Debug:            true,
+	// }
+	// r.Use(cors.Handler(corsOptions))
 
 	// Настройка маршрутов API
 	r.Route("/api", func(r chi.Router) {
-		r.Mount("/user", user.UserRouter(userHandler)) // Изменено на маршруты для User
+		r.Mount("/user", user.UserRouter(userHandler))
 		r.Mount("/transaction", transaction.TransactionRouter(transactionHandler))
 		r.Mount("/folder", folder.FolderRouter(folderHandler))
 		r.Mount("/foldertransaction", foldertransaction.FolderTransactionRouter(folderTransactionHandler))

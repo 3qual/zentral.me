@@ -8,60 +8,70 @@ import (
 	"os/signal"
 	"time"
 
-	"github.com/go-chi/chi/v5"
-	"github.com/go-chi/chi/v5/middleware"
-	"github.com/joho/godotenv"
-	"gorm.io/gorm"
-
+	"github.com/3qual/zentral-back-go/app"
 	"github.com/3qual/zentral-back-go/common/db"
 )
 
 func main() {
-	// 1. Загружаем .env
-	if err := godotenv.Load(); err != nil {
-		log.Printf(".env file not found or can't be loaded: %v", err)
-	}
+	// Инициализируем приложение (включая коннект к БД и миграции)
+	userHandler, transactionHandler, folderHandler, folderTransactionHandler, collaboratorHandler, accessTokenHandler, refreshTokenHandler, authHandler, imageHandler, sessionHandler := app.InitializeApp()
 
-	// 2. Инициализируем соединение с БД
-	dbConn := db.ConnectDB()
-	// Если в пакете db используется глобальная переменная + sync.Once,
-	// важно вызвать ConnectDB() ровно один раз.
-
-	// 3. Закрываем соединение при завершении
+	// Закрываем базу данных по завершении
 	defer db.CloseDB()
 
-	// 4. Получаем порт из окружения или берем 8080
+	// Создаем основной роутер, подключая все обработчики
+	r := app.NewRouter(
+		userHandler,
+		transactionHandler,
+		folderHandler,
+		folderTransactionHandler,
+		collaboratorHandler,
+		accessTokenHandler,
+		refreshTokenHandler,
+		authHandler,
+		imageHandler,
+		sessionHandler,
+	)
+
+	// Пример минимального хендлера
+	r.Get("/", func(w http.ResponseWriter, r *http.Request) {
+		w.Write([]byte("Hello from Zentral!"))
+	})
+
+	// Читаем порт из переменной окружения или берем 8080
 	port := os.Getenv("GO_APP_INTERNAL_PORT")
 	if port == "" {
 		port = "8080"
 	}
-	addr := ":" + port
 
-	// 5. Создаем роутер и передаём в него dbConn
-	r := newRouter(dbConn)
-
-	// 6. Создаем http-сервер
+	// Настраиваем HTTP-сервер
 	server := &http.Server{
-		Addr:         addr,
+		Addr:         ":" + port,
 		Handler:      r,
 		ReadTimeout:  5 * time.Second,
 		WriteTimeout: 10 * time.Second,
 	}
 
-	// 7. Запускаем сервер в горутине
+	// Запускаем сервер в отдельной горутине
 	go func() {
-		log.Printf("Server is running on %s\n", addr)
+		log.Printf("Server is running on %s\n", server.Addr)
 		if err := server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
-			log.Fatalf("Could not listen on %s: %v\n", addr, err)
+			log.Fatalf("Could not listen on %s: %v\n", server.Addr, err)
 		}
 	}()
 
-	// 8. Ожидаем сигнал для graceful shutdown
+	// Ожидаем сигнала для корректной остановки
+	waitForShutdown(server)
+}
+
+func waitForShutdown(server *http.Server) {
+	// Канал для сигналов
 	quit := make(chan os.Signal, 1)
 	signal.Notify(quit, os.Interrupt)
 	<-quit
 	log.Println("Shutting down server...")
 
+	// Контекст с таймаутом
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
@@ -69,31 +79,4 @@ func main() {
 		log.Fatalf("Server Shutdown Failed: %v", err)
 	}
 	log.Println("Server exited properly")
-}
-
-// newRouter инициализирует chi.Router и принимает gorm.DB для работы в хендлерах
-func newRouter(dbConn *gorm.DB) http.Handler {
-	r := chi.NewRouter()
-	r.Use(middleware.Logger)
-	r.Use(middleware.Recoverer)
-
-	r.Get("/", func(w http.ResponseWriter, r *http.Request) {
-		w.Write([]byte("Hello World! Fuck this..."))
-	})
-
-	// Пример эндпоинта, проверяющего доступность БД
-	r.Get("/ping-db", func(w http.ResponseWriter, r *http.Request) {
-		sqlDB, err := dbConn.DB()
-		if err != nil {
-			http.Error(w, "Error get DB instance", http.StatusInternalServerError)
-			return
-		}
-		if err := sqlDB.Ping(); err != nil {
-			http.Error(w, "Database not reachable", http.StatusInternalServerError)
-			return
-		}
-		w.Write([]byte("Database is alive!"))
-	})
-
-	return r
 }

@@ -8,7 +8,6 @@ import (
 
 // User модель для пользователя
 type User struct {
-	//ID            uint      `gorm:"primaryKey" json:"user_id"`
 	ID              uuid.UUID `gorm:"primary_key;type:uuid;default:uuid_generate_v4()" json:"id"`
 	IsActive        bool      `json:"is_active"`
 	IsVisible       bool      `json:"is_visible"`
