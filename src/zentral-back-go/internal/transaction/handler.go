@@ -3,6 +3,7 @@ package transaction
 import (
 	"encoding/json"
 	"net/http"
+	"strconv"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/google/uuid"
@@ -46,6 +47,46 @@ func (h *TransactionHandler) GetTransactionByIDHandler(w http.ResponseWriter, r 
 
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(transaction)
+}
+
+// GetTransactionByUserIDHandler получает все транзакции по ID пользователя с пагинацией
+func (h *TransactionHandler) GetTransactionByUserIDHandler(w http.ResponseWriter, r *http.Request) {
+	userID := r.URL.Query().Get("user_id")
+	page := r.URL.Query().Get("page")
+	limit := r.URL.Query().Get("limit")
+	// page := r.URL.Query().Get("page")   // Параметр страницы
+	// limit := r.URL.Query().Get("limit") // Параметр лимита
+
+	// Если параметры пустые, присваиваем им значения по умолчанию
+	if page == "" {
+		page = "1"
+	}
+	if limit == "" {
+		limit = "10"
+	}
+
+	// Преобразуем параметры в числа
+	pageInt, err := strconv.Atoi(page)
+	if err != nil || pageInt < 1 {
+		http.Error(w, "Invalid page parameter", http.StatusBadRequest)
+		return
+	}
+
+	limitInt, err := strconv.Atoi(limit)
+	if err != nil || limitInt < 1 {
+		http.Error(w, "Invalid limit parameter", http.StatusBadRequest)
+		return
+	}
+
+	// Получаем транзакции с пагинацией
+	transactions, err := h.service.GetTransactionByUserID(uuid.Must(uuid.Parse(userID)), pageInt, limitInt)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusNotFound)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(transactions)
 }
 
 // UpdateTransactionHandler обновляет данные транзакции

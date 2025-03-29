@@ -7,6 +7,7 @@ import (
 // TransactionRepository интерфейс для работы с данными транзакции
 type TransactionRepository interface {
 	FindByID(id string) (*Transaction, error)
+	FindByUserID(userID string, page int, limit int) ([]Transaction, error)
 	FindAll() ([]Transaction, error)
 	Create(transaction *Transaction) error
 	Update(transaction *Transaction) error
@@ -30,6 +31,17 @@ func (r *transactionRepository) FindByID(id string) (*Transaction, error) {
 	var transaction Transaction
 	err := r.DB.First(&transaction, "id = ?", id).Error
 	return &transaction, err
+}
+
+// FindByUserID возвращает все транзакции по ID пользователя с пагинацией
+func (r *transactionRepository) FindByUserID(userID string, page int, limit int) ([]Transaction, error) {
+	var transactions []Transaction
+
+	// Используем пагинацию, начиная с (page-1)*limit
+	offset := (page - 1) * limit
+
+	err := r.DB.Limit(limit).Offset(offset).Find(&transactions, "user_id = ?", userID).Error
+	return transactions, err
 }
 
 // FindAll находит все транзакции

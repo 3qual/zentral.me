@@ -10,10 +10,11 @@ import (
 func TransactionRouter(handler *TransactionHandler) chi.Router {
 	r := chi.NewRouter()
 
+	r.Get("/id/{id}", handler.GetTransactionByIDHandler)
+	r.Get("/", handler.GetTransactionByUserIDHandler)
 	r.Post("/", handler.CreateTransactionHandler)
-	r.Get("/{id}", handler.GetTransactionByIDHandler)
 	r.Put("/", handler.UpdateTransactionHandler)
-	r.Delete("/{id}", handler.DeleteTransactionHandler)
+	r.Delete("/id={id}", handler.DeleteTransactionHandler)
 
 	return r
 }

@@ -6,6 +6,7 @@ import "github.com/google/uuid"
 type TransactionService interface {
 	CreateTransaction(transaction *Transaction) error
 	GetTransactionByID(id uuid.UUID) (*Transaction, error)
+	GetTransactionByUserID(userID uuid.UUID, page int, limit int) ([]Transaction, error)
 	GetAllTransactions() ([]Transaction, error)
 	UpdateTransaction(transaction *Transaction) error
 	DeleteTransaction(transaction *Transaction) error
@@ -31,6 +32,11 @@ func (s *transactionService) CreateTransaction(transaction *Transaction) error {
 // GetTransactionByID возвращает транзакцию по ID
 func (s *transactionService) GetTransactionByID(id uuid.UUID) (*Transaction, error) {
 	return s.repo.FindByID(id.String())
+}
+
+// GetTransactionByUserID возвращает все транзакции по ID пользователя с пагинацией
+func (s *transactionService) GetTransactionByUserID(userID uuid.UUID, page int, limit int) ([]Transaction, error) {
+	return s.repo.FindByUserID(userID.String(), page, limit)
 }
 
 // GetAllTransactions возвращает все транзакции
