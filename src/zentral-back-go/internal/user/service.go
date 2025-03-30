@@ -6,6 +6,7 @@ import "github.com/google/uuid"
 type UserService interface {
 	CreateUser(user *User) error
 	GetUserByID(id uuid.UUID) (*User, error)
+	GetUserByUsername(username string) (*User, error)
 	UpdateUser(user *User) error
 	DeleteUser(user *User) error
 }
@@ -30,6 +31,11 @@ func (s *userService) CreateUser(user *User) error {
 // GetUserByID возвращает пользователя по ID
 func (s *userService) GetUserByID(id uuid.UUID) (*User, error) {
 	return s.repo.FindByID(id.String())
+}
+
+// GetUserByID возвращает пользователя по ID
+func (s *userService) GetUserByUsername(username string) (*User, error) {
+	return s.repo.FindByUsername(username)
 }
 
 // UpdateUser обновляет данные пользователя

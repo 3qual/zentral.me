@@ -48,6 +48,19 @@ func (h *UserHandler) GetUserByIDHandler(w http.ResponseWriter, r *http.Request)
 	json.NewEncoder(w).Encode(user)
 }
 
+// GetUserByIDHandler получает пользователя по ID
+func (h *UserHandler) GetUserByUsernameHandler(w http.ResponseWriter, r *http.Request) {
+	username := chi.URLParam(r, "username")
+	user, err := h.service.GetUserByUsername(username)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusNotFound)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(user)
+}
+
 // UpdateUserHandler обновляет данные пользователя
 func (h *UserHandler) UpdateUserHandler(w http.ResponseWriter, r *http.Request) {
 	var user User
